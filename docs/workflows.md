@@ -85,10 +85,7 @@ After user interviews or usability testing.
 2. /design-critique <current design against the insights>
    → What's misaligned with the research
 
-3. /flw-dude or /admin-dude <specific design question>
-   → Domain-specific pressure test
-
-4. /okr-connect <proposed design direction>
+3. /okr-connect <proposed design direction>
    → Business case for the direction
 ```
 
