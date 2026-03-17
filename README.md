@@ -21,8 +21,6 @@ Personal Claude Code setup — skills (invokable with `/skill-name`) and agents 
 | `brief` | `/brief <rough idea or PM ask>` | Structured design brief from a rough description |
 | `okr-connect` | `/okr-connect <design decision or feature>` | Links design work to team/company OKRs |
 | `startmate` | `/startmate <feature or decision>` | Frames work as a lean startup pitch (desirability/feasibility/viability) |
-| `flw-dude` | `/flw-dude <design or question>` | FLW domain expert — shared devices, offline, frontline worker research |
-| `admin-dude` | `/admin-dude <design or question>` | Admin domain expert — device fleet governance, compliance, HRIS |
 | `motion-spec` | `/motion-spec <UI element and states>` | Precise animation spec (Framer Motion/GSAP) before writing code |
 | `orb-architect` | `/orb-architect <product and feeling>` | Defines an AI persona — character, voice, emotional states |
 | `orb-copywriter` | `/orb-copywriter <UI states or screens>` | In-persona UI microcopy for AI products |
