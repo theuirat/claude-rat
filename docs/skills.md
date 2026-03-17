@@ -56,7 +56,7 @@ Evaluates a UI against Nielsen's 10 usability heuristics. Produces a scored repo
 
 Reviews a design or component for WCAG 2.1 AA issues — contrast ratios, focus management, touch targets, label coverage, reading order.
 
-**Use when:** Before any design handoff. Non-negotiable for SC work.
+**Use when:** Before any design handoff.
 
 ---
 
@@ -102,30 +102,6 @@ Articulates how a design decision or feature connects to team and company OKRs. 
 Frames design work as a lean startup pitch — desirability, feasibility, viability. Cuts through noise, challenges assumptions, commercially aware.
 
 **Use when:** Pressure-testing a feature before committing, or communicating direction to cross-functional stakeholders in startup language.
-
----
-
-## Domain Experts
-
-### `flw-dude`
-**Invoke:** `/flw-dude <describe a design, problem, or question about FLWs>`
-
-FLW (frontline worker) domain expert. Evaluates designs and answers questions through the lens of field research — shared devices, offline environments, shift-based workflows, fast user switching, ghost users, the Sync Tax, weak signal limbo.
-
-**Use when:** Any design decision that touches the FLW side of the Shared Devices system. Will call out what will fail on the floor and why, backed by customer evidence (Glencore, Agnico, Redpath, Dinner Ladies, Fishbowl, Aetherworks, Royal Caribbean).
-
-**Key vocabulary it knows:** GRS, ghost users, Sync Tax, weak signal limbo, Common Document Cache, Fast User Switching (FUS), forceauthn, signature field discovery.
-
----
-
-### `admin-dude`
-**Invoke:** `/admin-dude <describe a design, problem, or question about Admins>`
-
-Admin domain expert for Shared Devices. Evaluates designs through the lens of IT and operations admin research — fleet governance, compliance accountability, HRIS integration, zero-touch provisioning, leavers workflows, enterprise-scale deployment.
-
-**Use when:** Any design decision that touches the Admin side of the Shared Devices system. Will call out what fails at enterprise scale, backed by customer evidence (Glencore, Agnico, TransOcean, Royal Caribbean, Viking).
-
-**Key vocabulary it knows:** GRS, ghost users, zero-touch provisioning, HRIS, MDM, leavers workflow, site scoping, token reset, bulk enrolment.
 
 ---
 
