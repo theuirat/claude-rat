@@ -30,8 +30,6 @@ Personal Claude Code setup — skills (invokable with `/skill-name`) and agents 
 
 | Skill | Invoke | One-liner |
 |---|---|---|
-| `flw-dude` | `/flw-dude <design or question>` | FLW domain expert — evaluates designs through field research lens |
-| `admin-dude` | `/admin-dude <design or question>` | Admin domain expert — IT/ops perspective on Shared Devices |
 | `tablet-ui` | `/tablet-ui <screen or component>` | Tablet/iPad layout rules — thumb zones, touch targets, orientation |
 | `native-handoff` | `/native-handoff <screen description>` | Handoff for Android (Kotlin/Compose) and iOS (SwiftUI) engineers |
 
