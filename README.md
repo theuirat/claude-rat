@@ -37,6 +37,7 @@ Personal Claude Code setup — skills (invokable with `/skill-name`) and agents 
 
 | Skill | Invoke | One-liner |
 |---|---|---|
+| `material-3` | `/material-3 [component\|theme\|scaffold\|audit] <description>` | Google Material Design 3 — tokens, 30+ components, theming (Compose/Flutter/Web) |
 | `motion-spec` | `/motion-spec <UI element and states>` | Precise animation spec (Framer Motion/GSAP) before writing code |
 | `pr-monitor` | `/pr-monitor <PR number(s)>` | Check CI, fix failures, push until a PR is green |
 
