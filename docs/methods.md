@@ -2,12 +2,12 @@
 
 Structured frameworks for running longer, more ambitious sessions with Claude Code. Unlike skills (single prompts) or agents (single workflows), methods govern how an entire project is planned and built across multiple sessions.
 
-**The core idea:** AI-driven design means using *structured methods*, not just prompts, to run longer, more ambitious sessions. Rather than asking Claude one question at a time, these methods give it a full picture of a project so it can plan, build, and verify work autonomously.
+**The core idea:** Spec-Driven Design means using *structured methods*, not just prompts, to run longer, more ambitious sessions. Rather than asking Claude one question at a time, these methods give it a full picture of a project so it can plan, build, and verify work autonomously.
 
 The distinction matters:
 
 - **Vibe coding** — telling AI what to do and going with the vibe. Fast, but you're not really in control.
-- **AI assisted development** — AI is a coding assistant, but *you* own the end-to-end. Lots of planning, disciplined execution, and rules for both AI and yourself. You're the project manager orchestrating the process.
+- **Spec-Driven Design** — AI is a coding assistant, but *you* own the end-to-end. Lots of planning, disciplined execution, and rules for both AI and yourself. You're the project manager orchestrating the process.
 
 ---
 
