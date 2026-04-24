@@ -65,40 +65,9 @@ If the command isn't found, add npm global bin to PATH:
 export PATH="$PATH:$(npm bin -g)"
 ```
 
-**2. Set up artifact storage**
+**2. Install the Claude Code skills**
 
-OpenSpec generates artifacts (proposals, specs, tasks) per change. Where they live depends on context:
-
-**SC / team project** — store artifacts in the shared findings repo so the team can learn from them:
-
-```shell
-# Clone the findings repo once (SC-internal — requires access)
-cd ~/projects
-git clone https://github.com/SafetyCulture/openspec-findings
-
-# From inside your project directory:
-# If openspec/ already exists in the project, move it across first:
-mv openspec ../openspec-findings/<your-project-name>/
-
-# If it doesn't exist yet, create the folder:
-mkdir -p ../openspec-findings/<your-project-name>/openspec
-
-# Create a symlink so openspec still works from your project:
-ln -s ../openspec-findings/<your-project-name>/openspec openspec
-
-# Add openspec to .gitignore so it's not committed to your project repo:
-echo "openspec/" >> .gitignore
-```
-
-> **Note:** The symlink is local. If you re-clone your project on a new machine, re-run the `ln -s` step.
-
-**Personal project** — artifacts stay in the project directory. Skip the findings repo entirely:
-
-```shell
-# Nothing to do — openspec init (step 4) creates the openspec/ folder automatically
-```
-
-**3. Install the Claude Code skills**
+From inside your project directory:
 
 ```shell
 openspec init --tools claude
