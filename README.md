@@ -83,4 +83,4 @@ Personal Claude Code setup — skills (invokable with `/skill-name`) and agents 
 - [Skills](docs/skills.md)
 - [Agents](docs/agents.md)
 - [Workflows — how they chain together](docs/workflows.md)
-- [Methods — BMAD, GSD, ODD](docs/methods.md)
+- [Methods — OpenSpec, BMAD, GSD, ODD](docs/methods.md)
