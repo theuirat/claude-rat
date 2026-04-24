@@ -53,23 +53,52 @@ OpenSpec is a structured change workflow for Claude Code. Instead of asking Clau
 npm install -g @fission-ai/openspec@latest
 ```
 
-**2. Clone the openspec-findings repo** (stores artifacts for the team)
+Verify it's installed:
 
 ```shell
-cd ~/projects
-git clone https://github.com/SafetyCulture/openspec-findings
+openspec --version
 ```
 
-**3. Link your project to the findings repo**
+If the command isn't found, add npm global bin to PATH:
 
 ```shell
+export PATH="$PATH:$(npm bin -g)"
+```
+
+**2. Set up artifact storage**
+
+OpenSpec generates artifacts (proposals, specs, tasks) per change. Where they live depends on context:
+
+**SC / team project** — store artifacts in the shared findings repo so the team can learn from them:
+
+```shell
+# Clone the findings repo once (SC-internal — requires access)
+cd ~/projects
+git clone https://github.com/SafetyCulture/openspec-findings
+
 # From inside your project directory:
-mkdir ../openspec-findings/<your-project-name>/
+# If openspec/ already exists in the project, move it across first:
+mv openspec ../openspec-findings/<your-project-name>/
+
+# If it doesn't exist yet, create the folder:
+mkdir -p ../openspec-findings/<your-project-name>/openspec
+
+# Create a symlink so openspec still works from your project:
 ln -s ../openspec-findings/<your-project-name>/openspec openspec
+
+# Add openspec to .gitignore so it's not committed to your project repo:
 echo "openspec/" >> .gitignore
 ```
 
-**4. Install the Claude Code skills**
+> **Note:** The symlink is local. If you re-clone your project on a new machine, re-run the `ln -s` step.
+
+**Personal project** — artifacts stay in the project directory. Skip the findings repo entirely:
+
+```shell
+# Nothing to do — openspec init (step 4) creates the openspec/ folder automatically
+```
+
+**3. Install the Claude Code skills**
 
 ```shell
 openspec init --tools claude
@@ -84,6 +113,8 @@ This installs four slash commands into `.claude/skills/`. Open Claude Code and t
 | `/openspec-apply-change` | Implement task by task from the proposal |
 | `/openspec-archive-change` | Finalise and archive when done |
 
+If the skills don't appear, re-run `openspec init --tools claude` from inside the project directory.
+
 ### The workflow
 
 **Clear requirement → straight to propose:**
@@ -96,12 +127,29 @@ This installs four slash commands into `.claude/skills/`. Open Claude Code and t
 /openspec-explore → [think it through] → /openspec-propose → /openspec-apply-change → /openspec-archive-change
 ```
 
+### Useful commands
+
+```shell
+# See all active changes
+openspec list
+
+# Check artifact status for a specific change
+openspec status --change your-change-name
+```
+
 ### Tips
 
 - **Describe intent, not implementation.** Tell Claude what the user should experience — not which component to use.
 - **Always read `design.md` before applying.** 30 seconds here saves a full re-implementation.
 - **Use explore mode for UI/layout decisions.** Share a Figma link and ask Claude to map the delta before proposing.
 - **Always archive.** This keeps `specs/` accurate for the next session.
+
+### Watch out for
+
+- **Spec drift.** If you make significant changes mid-implementation, update `design.md` directly — don't re-run `/openspec-propose` as it will overwrite your original spec.
+- **Claude drifting out of explore mode.** If it starts writing code during explore, re-prompt: *"Stay in explore mode — don't write any code yet."*
+- **Mid-implementation plan changes.** Edit the relevant artifact file directly rather than re-running propose.
+- **A new spec folder being created when updating an existing feature.** Run `openspec list` to find the existing change name and pass it explicitly.
 
 ---
 
