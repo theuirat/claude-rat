@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spec-Driven Design — SafetyCulture Design Team</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --yellow: #f0b429;
+  --yellow-surf: rgba(240,180,41,0.09);
+  --yellow-border: rgba(240,180,41,0.22);
+  --white: #ffffff;
+  --w70: rgba(255,255,255,0.70);
+  --w50: rgba(255,255,255,0.50);
+  --w38: rgba(255,255,255,0.38);
+  --w10: rgba(255,255,255,0.10);
+  --w06: rgba(255,255,255,0.06);
+  --card: rgba(255,255,255,0.05);
+  --card-b: rgba(255,255,255,0.09);
+  --red-surf: rgba(210,55,50,0.08);
+  --red-border: rgba(210,55,50,0.18);
+  --red-text: rgba(255,120,110,0.75);
+  --green: #4ade80;
+  --red: #f87171;
+  --font: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --mono: 'SF Mono', 'Fira Code', 'Fira Mono', 'Consolas', monospace;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  background: #0c1020;
+  color: var(--white);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+/* ── DECK ── */
+.deck { width: 100vw; height: 100vh; position: relative; }
+
+.slide {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(155deg, #0c1020 0%, #101624 55%, #121a2b 100%);
+  display: flex;
+  flex-direction: column;
+  padding: 52px 80px 44px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+.slide.active { opacity: 1; pointer-events: all; }
+
+/* ── TYPE SCALE ── */
+.label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--w38);
+  margin-bottom: 14px;
+}
+.headline {
+  font-size: 54px;
+  font-weight: 800;
+  line-height: 1.06;
+  letter-spacing: -0.022em;
+}
+.subhead {
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--w70);
+  margin-top: 14px;
+  max-width: 680px;
+}
+#s2 .subhead, #s9 .subhead { max-width: none; }
+.accent { color: var(--yellow); }
+
+/* ── CHROME ── */
+.sc-mark {
+  position: absolute;
+  bottom: 28px;
+  left: 80px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--w38);
+}
+.counter {
+  position: absolute;
+  bottom: 28px;
+  right: 80px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--w38);
+  letter-spacing: 0.04em;
+}
+.progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: var(--yellow);
+  opacity: 0.45;
+  transition: width 0.35s ease;
+}
+
+/* ── CARDS ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--card-b);
+  border-radius: 12px;
+  padding: 24px 28px;
+}
+
+/* ── SLIDE 1: TITLE ── */
+#s1 { justify-content: center; }
+#s1 .top { position: absolute; top: 46px; left: 80px; }
+#s1 .hl {
+  font-size: 90px;
+  font-weight: 900;
+  line-height: 0.96;
+  letter-spacing: -0.03em;
+  margin-bottom: 28px;
+}
+#s1 .rule {
+  width: 44px; height: 3px;
+  background: var(--yellow);
+  border-radius: 2px;
+  margin: 0 0 24px;
+}
+#s1 .sub {
+  font-size: 23px;
+  font-weight: 400;
+  color: var(--w70);
+  line-height: 1.6;
+}
+#s1 .glow {
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(240,180,41,0.06) 0%, transparent 70%);
+  top: 50%; left: 30%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* ── SLIDE 2: PROBLEM ── */
+#s2 .cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  flex: 1;
+  margin-top: 28px;
+}
+.col-bad {
+  background: var(--red-surf);
+  border: 1px solid var(--red-border);
+  border-radius: 12px;
+  padding: 28px 32px;
+}
+.col-good {
+  background: var(--yellow-surf);
+  border: 1px solid var(--yellow-border);
+  border-radius: 12px;
+  padding: 28px 32px;
+}
+.col-tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.col-bad .col-tag { color: var(--red-text); }
+.col-good .col-tag { color: var(--yellow); }
+.col-title {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 22px;
+}
+.col-bad .col-title { color: rgba(255,255,255,0.50); }
+.col-good .col-title { color: var(--white); }
+.cmp-row {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  padding: 11px 0;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+.cmp-k {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding-top: 2px;
+}
+.col-bad .cmp-k { color: rgba(255,255,255,0.24); }
+.col-good .cmp-k { color: rgba(255,255,255,0.42); }
+.cmp-v { font-size: 17px; font-weight: 500; line-height: 1.4; }
+.col-bad .cmp-v { color: rgba(255,255,255,0.42); }
+.col-good .cmp-v { color: var(--white); }
+.col-good .cmp-v strong { color: var(--yellow); font-weight: 600; }
+
+/* ── SLIDE 3: WHAT IS IT ── */
+#s3 .steps-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  flex: 1;
+  margin-top: 32px;
+}
+.step {
+  flex: 1;
+  background: var(--card);
+  border: 1px solid var(--card-b);
+  border-radius: 12px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.step-n {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--yellow);
+}
+.step-title { font-size: 22px; font-weight: 700; line-height: 1.2; }
+.step-body { font-size: 15px; line-height: 1.6; color: var(--w70); flex: 1; }
+.step-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  color: var(--yellow);
+  opacity: 0.45;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+#s3 .quote {
+  margin-top: 20px;
+  background: var(--yellow-surf);
+  border: 1px solid var(--yellow-border);
+  border-left: 3px solid var(--yellow);
+  border-radius: 0 10px 10px 0;
+  padding: 18px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+#s3 .q-text {
+  font-size: 17px;
+  font-style: italic;
+  font-weight: 500;
+  color: var(--white);
+  line-height: 1.5;
+}
+#s3 .q-attr { font-size: 13px; color: var(--w50); font-style: normal; }
+
+/* ── SLIDE 4: METHODS OVERVIEW ── */
+#s4 .grid {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 16px;
+  flex: 1;
+  margin-top: 28px;
+}
+.mc {
+  background: var(--card);
+  border: 1px solid var(--card-b);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mc-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  background: var(--yellow-surf);
+  border: 1px solid var(--yellow-border);
+  border-radius: 4px;
+  padding: 3px 8px;
+  display: inline-block;
+  align-self: flex-start;
+}
+.mc-name {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--yellow);
+  letter-spacing: -0.01em;
+}
+.mc-desc { font-size: 14px; line-height: 1.5; color: var(--w70); flex: 1; }
+.mc-docs-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--w38);
+  margin-top: 10px;
+}
+.mc-doc {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--w50);
+  padding: 2px 0;
+}
+
+/* ── SLIDES 5–8: METHOD DETAIL ── */
+.md-layout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 52px;
+  flex: 1;
+  margin-top: 4px;
+  align-items: start;
+}
+.md-left { display: flex; flex-direction: column; }
+.md-name {
+  font-size: 68px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: var(--yellow);
+  line-height: 1.0;
+  margin-bottom: 14px;
+}
+.md-desc {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--w70);
+  margin-bottom: 24px;
+  max-width: 340px;
+}
+.use-list { display: flex; flex-direction: column; gap: 9px; }
+.ui {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  font-size: 15px;
+  line-height: 1.4;
+}
+.ui-dot {
+  width: 18px; min-width: 18px; height: 18px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 800;
+  margin-top: 1px;
+}
+.ui-dot.y { background: rgba(74,222,128,0.14); color: var(--green); }
+.ui-dot.n { background: rgba(248,113,113,0.14); color: var(--red); }
+.ui.y-item { color: var(--w70); }
+.ui.n-item { color: var(--w38); }
+.md-callout {
+  margin-top: 20px;
+  background: var(--yellow-surf);
+  border: 1px solid var(--yellow-border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--w70);
+  line-height: 1.5;
+}
+.md-callout strong { color: var(--yellow); }
+.md-right { display: flex; flex-direction: column; gap: 14px; padding-top: 4px; }
+.r-label {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--w38);
+}
+
+/* ── SLIDE 5: OPENSPEC ── */
+.flow-block {
+  background: var(--card);
+  border: 1px solid var(--card-b);
+  border-radius: 12px;
+  padding: 6px 4px;
+}
+.fs {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.fs:last-child { border-bottom: none; }
+.fs-cmd {
+  font-family: var(--mono);
+  font-size: 12px; font-weight: 600;
+  color: var(--yellow);
+  background: var(--yellow-surf);
+  border: 1px solid var(--yellow-border);
+  border-radius: 5px;
+  padding: 3px 10px;
+  white-space: nowrap;
+  margin-top: 1px;
+}
+.fs-desc { font-size: 14px; line-height: 1.5; color: var(--w70); }
+.fs-files {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--w50);
+  margin-top: 4px;
+}
+.modes-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.mode {
+  background: var(--card);
+  border: 1px solid var(--card-b);
+  border-radius: 8px;
+  padding: 14px 18px;
+}
+.mode-cmd { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--yellow); }
+.mode-desc { font-size: 13px; color: var(--w50); margin-top: 4px; }
+
+/* ── SLIDE 6: BMAD ── */
+.agent-chain { display: flex; flex-direction: column; gap: 10px; }
+.agent-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.agent-card {
+  flex: 1;
+  background: var(--card);
+  border: 1px solid var(--card-b);
+  border-radius: 10px;
+  padding: 16px 20px;
+}
+.agent-step {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 5px;
+}
+.agent-name { font-size: 17px; font-weight: 700; margin-bottom: 3px; }
+.agent-role { font-size: 13px; line-height: 1.4; color: var(--w50); }
+.agent-arr {
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; min-width: 28px;
+  color: var(--yellow);
+  opacity: 0.45;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.agent-loop {
+  background: var(--card);
+  border: 1px solid var(--card-b);
+  border-left: 2px solid var(--yellow-border);
+  border-radius: 0 10px 10px 0;
+  padding: 14px 20px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.loop-badge {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--yellow);
+  white-space: nowrap;
+}
+.loop-body { display: flex; flex-direction: column; gap: 2px; }
+.loop-name { font-size: 16px; font-weight: 700; }
+.loop-desc { font-size: 13px; line-height: 1.4; color: var(--w70); }
+.agent-output {
+  background: var(--yellow-surf);
+  border: 1px solid var(--yellow-border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13px; color: var(--w70); line-height: 1.5;
+}
+.agent-output strong { color: var(--yellow); }
+
+/* ── SLIDE 7: GSD ── */
+.docs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.dc {
+  background: var(--card);
+  border: 1px solid var(--card-b);
+  border-radius: 10px;
+  padding: 18px 22px;
+}
+.dc-file {
+  font-family: var(--mono);
+  font-size: 14px; font-weight: 700;
+  color: var(--yellow);
+  margin-bottom: 7px;
+}
+.dc-desc { font-size: 15px; line-height: 1.5; color: var(--w70); }
+.build-loop {
+  background: var(--yellow-surf);
+  border: 1px solid var(--yellow-border);
+  border-radius: 8px;
+  padding: 13px 16px;
+  font-size: 14px; color: var(--w70); line-height: 1.5;
+}
+.build-loop strong { color: var(--yellow); }
+
+/* ── SLIDE 8: ODD ── */
+.concepts { display: flex; flex-direction: column; gap: 10px; }
+.concept {
+  background: var(--card);
+  border: 1px solid var(--card-b);
+  border-radius: 10px;
+  padding: 16px 22px;
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+.c-name { font-size: 16px; font-weight: 700; }
+.c-desc { font-size: 15px; line-height: 1.5; color: var(--w70); }
+.odd-chain {
+  background: var(--yellow-surf);
+  border: 1px solid var(--yellow-border);
+  border-radius: 8px;
+  padding: 13px 16px;
+  font-family: var(--mono);
+  font-size: 12px; color: var(--w70);
+  line-height: 1.6;
+}
+
+/* ── SLIDE 9: WHEN TO USE ── */
+#s9 .grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  flex: 1;
+  margin-top: 24px;
+}
+.wc {
+  background: var(--card);
+  border: 1px solid var(--card-b);
+  border-radius: 12px;
+  padding: 22px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.wc-name { font-size: 22px; font-weight: 800; color: var(--yellow); letter-spacing: -0.01em; }
+.wc-items { display: flex; flex-direction: column; gap: 9px; }
+.wi {
+  display: flex; gap: 10px; align-items: flex-start;
+  font-size: 15px; line-height: 1.4;
+}
+.wi.y { color: var(--w70); }
+.wi.n { color: var(--w38); }
+.wi-dot {
+  width: 16px; min-width: 16px; height: 16px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 800;
+  margin-top: 2px;
+}
+.wi-dot.y { background: rgba(74,222,128,0.14); color: var(--green); }
+.wi-dot.n { background: rgba(248,113,113,0.12); color: var(--red); }
+#s9 .rule-footer {
+  margin-top: 14px;
+  text-align: center;
+  padding: 12px 20px;
+  background: var(--yellow-surf);
+  border: 1px solid var(--yellow-border);
+  border-radius: 8px;
+  font-size: 15px; font-weight: 600; color: var(--white);
+}
+
+/* ── SLIDE 10: TAKEAWAY ── */
+#s10 { justify-content: center; align-items: center; text-align: center; }
+#s10 .sc-mark { left: 50%; transform: translateX(-50%); z-index: 1; }
+#s10 .hl {
+  font-size: 62px;
+  font-weight: 800;
+  line-height: 1.16;
+  letter-spacing: -0.025em;
+  max-width: 920px;
+  position: relative;
+  z-index: 1;
+}
+#s10 .glow {
+  position: absolute;
+  width: 800px; height: 800px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(240,180,41,0.07) 0%, transparent 65%);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+</style>
+</head>
+<body>
+<div class="deck">
+
+  <!-- 01 TITLE -->
+  <div class="slide active" id="s1">
+    <div class="glow"></div>
+    <div class="top label">Design Team — May 2026</div>
+    <div class="hl headline">
+      Spec-Driven<br>
+      <span class="accent">Design</span>
+    </div>
+    <div class="rule"></div>
+    <div class="sub">Put the thinking in upfront.<br>Let the AI execute with precision.</div>
+    <div class="sc-mark">SafetyCulture</div>
+    <div class="counter">1 / 10</div>
+    <div class="progress" style="width:10%"></div>
+  </div>
+
+  <!-- 02 PROBLEM -->
+  <div class="slide" id="s2">
+    <div class="label">The Problem</div>
+    <div class="headline">Vibe coding doesn't scale</div>
+    <div class="subhead">Two ways to work with AI — only one produces reliable output.</div>
+    <div class="cols">
+      <div class="col-bad">
+        <div class="col-tag">✕ &nbsp;Vibe Coding</div>
+        <div class="col-title">Prompt &amp; hope</div>
+        <div class="cmp-row"><div class="cmp-k">You write</div><div class="cmp-v">A vague prompt</div></div>
+        <div class="cmp-row"><div class="cmp-k">AI gets</div><div class="cmp-v">Ambiguous intent</div></div>
+        <div class="cmp-row"><div class="cmp-k">Result</div><div class="cmp-v">Drift, hallucinations, rework</div></div>
+        <div class="cmp-row"><div class="cmp-k">Sessions</div><div class="cmp-v">Start from scratch each time</div></div>
+      </div>
+      <div class="col-good">
+        <div class="col-tag">✓ &nbsp;Spec-Driven</div>
+        <div class="col-title">Contract &amp; execute</div>
+        <div class="cmp-row"><div class="cmp-k">You write</div><div class="cmp-v"><strong>A structured spec</strong></div></div>
+        <div class="cmp-row"><div class="cmp-k">AI gets</div><div class="cmp-v"><strong>Full context, upfront</strong></div></div>
+        <div class="cmp-row"><div class="cmp-k">Result</div><div class="cmp-v"><strong>On-target, accurate, resumable</strong></div></div>
+        <div class="cmp-row"><div class="cmp-k">Sessions</div><div class="cmp-v"><strong>Pick up exactly where you left off</strong></div></div>
+      </div>
+    </div>
+    <div class="sc-mark">SafetyCulture</div>
+    <div class="counter">2 / 10</div>
+    <div class="progress" style="width:20%"></div>
+  </div>
+
+  <!-- 03 WHAT IS IT -->
+  <div class="slide" id="s3">
+    <div class="label">What Is It?</div>
+    <div class="headline">Engineering the inputs</div>
+    <div class="subhead">An LLM is only as good as the context it receives. Spec-driven design means writing that context deliberately — before a single line of code runs.</div>
+    <div class="steps-row">
+      <div class="step">
+        <div class="step-n">Step 01</div>
+        <div class="step-title">Write the spec</div>
+        <div class="step-body">Document what you want to build, why, and what success looks like. Use structured markdown files.</div>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step">
+        <div class="step-n">Step 02</div>
+        <div class="step-title">Give AI full context</div>
+        <div class="step-body">Load the spec at the start of every session. Claude always knows the mission, constraints, and current state.</div>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step">
+        <div class="step-n">Step 03</div>
+        <div class="step-title">Execute &amp; verify</div>
+        <div class="step-body">Claude builds task by task. You verify against the spec. Accurate and resumable across every session.</div>
+      </div>
+    </div>
+    <div class="quote">
+      <div class="q-text">"Stop writing code, start writing contracts."</div>
+      <div class="q-attr">— Spec-Driven Development · Max &amp; Maria, SC Engineering</div>
+    </div>
+    <div class="sc-mark">SafetyCulture</div>
+    <div class="counter">3 / 10</div>
+    <div class="progress" style="width:30%"></div>
+  </div>
+
+  <!-- 04 METHODS OVERVIEW -->
+  <div class="slide" id="s4">
+    <div class="label">The Methods</div>
+    <div class="headline">Each method = a different set of context docs</div>
+    <div class="subhead">Same principle. Different files. Different problems solved.</div>
+    <div class="grid">
+      <div class="mc">
+        <div class="mc-badge">Best for designers</div>
+        <div class="mc-name">OpenSpec</div>
+        <div class="mc-desc">Any change — document, propose, implement, review. Proposal before code.</div>
+        <div class="mc-docs-lbl">Context docs</div>
+        <div class="mc-doc">proposal.md</div>
+        <div class="mc-doc">design.md</div>
+        <div class="mc-doc">tasks.md</div>
+      </div>
+      <div class="mc">
+        <div class="mc-name">BMAD</div>
+        <div class="mc-desc">Planning a new project from scratch. Generates the docs other methods execute from.</div>
+        <div class="mc-docs-lbl">Context docs</div>
+        <div class="mc-doc">PRD.md</div>
+        <div class="mc-doc">architecture.md</div>
+        <div class="mc-doc">stories.md</div>
+      </div>
+      <div class="mc">
+        <div class="mc-name">GSD</div>
+        <div class="mc-desc">Multi-session builds. Solves context rot — Claude always knows what's done and what's next.</div>
+        <div class="mc-docs-lbl">Context docs</div>
+        <div class="mc-doc">PROJECT.md</div>
+        <div class="mc-doc">REQUIREMENTS.md</div>
+        <div class="mc-doc">STATE.md</div>
+      </div>
+      <div class="mc">
+        <div class="mc-name">ODD</div>
+        <div class="mc-desc">Outcome-Driven Development. Design-first. Start with real people and what they need, not features.</div>
+        <div class="mc-docs-lbl">Context docs</div>
+        <div class="mc-doc">personas.md</div>
+        <div class="mc-doc">outcomes.md</div>
+        <div class="mc-doc">plan.md</div>
+      </div>
+    </div>
+    <div class="sc-mark">SafetyCulture</div>
+    <div class="counter">4 / 10</div>
+    <div class="progress" style="width:40%"></div>
+  </div>
+
+  <!-- 05 OPENSPEC -->
+  <div class="slide" id="s5">
+    <div class="label">Method 01</div>
+    <div class="md-layout">
+      <div class="md-left">
+        <div class="md-name">OpenSpec</div>
+        <div class="md-desc">A structured change workflow. Claude must write a full proposal — what it'll build and why — before touching any files.</div>
+        <div class="use-list">
+          <div class="ui y-item"><div class="ui-dot y">✓</div><span>UI &amp; prototype work — explicit design intent, not guessed</span></div>
+          <div class="ui y-item"><div class="ui-dot y">✓</div><span>Multi-step changes — tracked in tasks.md, resumable any time</span></div>
+          <div class="ui y-item"><div class="ui-dot y">✓</div><span>Exploring without committing — think with Claude, touch nothing</span></div>
+          <div class="ui n-item"><div class="ui-dot n">✕</div><span>Quick one-liner fixes — just prompt directly</span></div>
+        </div>
+        <div class="md-callout"><strong>★ Used on</strong> — the Quick Secure Auth native prototype</div>
+      </div>
+      <div class="md-right">
+        <div class="r-label">The Flow</div>
+        <div class="flow-block">
+          <div class="fs">
+            <div class="fs-cmd">/openspec-propose</div>
+            <div>
+              <div class="fs-desc">Claude writes the full proposal before any code runs.</div>
+              <div class="fs-files">→ proposal.md · design.md · tasks.md</div>
+            </div>
+          </div>
+          <div class="fs">
+            <div class="fs-cmd">/openspec-apply-change</div>
+            <div class="fs-desc">Implements task by task. Each task is verified before moving on.</div>
+          </div>
+          <div class="fs">
+            <div class="fs-cmd">/openspec-critique-change</div>
+            <div class="fs-desc">Deliberate review against the proposal. Flags drift early.</div>
+          </div>
+        </div>
+        <div class="r-label">Four Modes</div>
+        <div class="modes-grid">
+          <div class="mode"><div class="mode-cmd">/feature</div><div class="mode-desc">Title without touching code</div></div>
+          <div class="mode"><div class="mode-cmd">/compose</div><div class="mode-desc">Generates full change package</div></div>
+          <div class="mode"><div class="mode-cmd">/reply</div><div class="mode-desc">Execute task by task</div></div>
+          <div class="mode"><div class="mode-cmd">/iterate</div><div class="mode-desc">Finalise &amp; close</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="sc-mark">SafetyCulture</div>
+    <div class="counter">5 / 10</div>
+    <div class="progress" style="width:50%"></div>
+  </div>
+
+  <!-- 06 BMAD -->
+  <div class="slide" id="s6">
+    <div class="label">Method 02</div>
+    <div class="md-layout">
+      <div class="md-left">
+        <div class="md-name">BMAD</div>
+        <div class="md-desc">A multi-agent planning framework. Runs a full product team in one conversation to take you from idea to a fully-scoped, buildable project.</div>
+        <div class="use-list">
+          <div class="ui y-item"><div class="ui-dot y">✓</div><span>Starting from scratch — no docs or requirements yet</span></div>
+          <div class="ui y-item"><div class="ui-dot y">✓</div><span>Need PRD + architecture + story backlog in one session</span></div>
+          <div class="ui n-item"><div class="ui-dot n">✕</div><span>You already have requirements — go straight to GSD</span></div>
+          <div class="ui n-item"><div class="ui-dot n">✕</div><span>You need to ship something today</span></div>
+        </div>
+        <div class="md-callout"><strong>Output becomes input</strong> — BMAD plans, GSD executes</div>
+      </div>
+      <div class="md-right">
+        <div class="r-label">The Agent Team — sequential handoff</div>
+        <div class="agent-chain">
+          <div class="agent-row">
+            <div class="agent-card">
+              <div class="agent-step">01</div>
+              <div class="agent-name">Analyst</div>
+              <div class="agent-role">Research, brief, competitive context</div>
+            </div>
+            <div class="agent-arr">→</div>
+            <div class="agent-card">
+              <div class="agent-step">02</div>
+              <div class="agent-name">PM</div>
+              <div class="agent-role">Requirements and PRD</div>
+            </div>
+            <div class="agent-arr">→</div>
+            <div class="agent-card">
+              <div class="agent-step">03</div>
+              <div class="agent-name">Architect</div>
+              <div class="agent-role">Technical design and stack decisions</div>
+            </div>
+            <div class="agent-arr">→</div>
+            <div class="agent-card">
+              <div class="agent-step">04</div>
+              <div class="agent-name">Product Owner</div>
+              <div class="agent-role">Story backlog, priorities</div>
+            </div>
+          </div>
+          <div class="agent-loop">
+            <div class="loop-badge">Outer loop</div>
+            <div class="loop-body">
+              <div class="loop-name">Scrum Master</div>
+              <div class="loop-desc">Sprint-ready implementation stories — ties the whole plan together</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sc-mark">SafetyCulture</div>
+    <div class="counter">6 / 10</div>
+    <div class="progress" style="width:60%"></div>
+  </div>
+
+  <!-- 07 GSD -->
+  <div class="slide" id="s7">
+    <div class="label">Method 03</div>
+    <div class="md-layout">
+      <div class="md-left">
+        <div class="md-name">GSD</div>
+        <div class="md-desc">Get Shit Done — an execution framework that solves context rot: the quality degradation when Claude fills its window and forgets earlier decisions.</div>
+        <div class="use-list">
+          <div class="ui y-item"><div class="ui-dot y">✓</div><span>Builds that span multiple sessions</span></div>
+          <div class="ui y-item"><div class="ui-dot y">✓</div><span>You have requirements ready and just need to execute</span></div>
+          <div class="ui n-item"><div class="ui-dot n">✕</div><span>Quick one-session prototype — just use OpenSpec</span></div>
+          <div class="ui n-item"><div class="ui-dot n">✕</div><span>You haven't written requirements yet — use BMAD first</span></div>
+        </div>
+      </div>
+      <div class="md-right">
+        <div class="r-label">Four docs loaded every session</div>
+        <div class="docs-grid">
+          <div class="dc">
+            <div class="dc-file">PROJECT.md</div>
+            <div class="dc-desc">Mission, stack, design tokens, library changes</div>
+          </div>
+          <div class="dc">
+            <div class="dc-file">REQUIREMENTS.md</div>
+            <div class="dc-desc">Epics, acceptance criteria, library changes</div>
+          </div>
+          <div class="dc">
+            <div class="dc-file">ROADMAP.md</div>
+            <div class="dc-desc">Milestones and epics</div>
+          </div>
+          <div class="dc">
+            <div class="dc-file">STATE.md</div>
+            <div class="dc-desc">Current progress — done, in flight, next</div>
+          </div>
+        </div>
+        <div class="build-loop"><strong>Build loop:</strong> Discuss → Plan → Execute → Verify → Repeat per story</div>
+      </div>
+    </div>
+    <div class="sc-mark">SafetyCulture</div>
+    <div class="counter">7 / 10</div>
+    <div class="progress" style="width:70%"></div>
+  </div>
+
+  <!-- 08 ODD -->
+  <div class="slide" id="s8">
+    <div class="label">Method 04</div>
+    <div class="md-layout">
+      <div class="md-left">
+        <div class="md-name">ODD</div>
+        <div class="md-desc">Outcome-Driven Development — design-first. You start with what a real person should be able to do when the work is done, not a feature spec.</div>
+        <div class="use-list">
+          <div class="ui y-item"><div class="ui-dot y">✓</div><span>You're designer and builder — design language drives the build</span></div>
+          <div class="ui y-item"><div class="ui-dot y">✓</div><span>Verified delivery matters more than speed</span></div>
+          <div class="ui n-item"><div class="ui-dot n">✕</div><span>Speed is the constraint — use OpenSpec instead</span></div>
+          <div class="ui n-item"><div class="ui-dot n">✕</div><span>Just shipping a single change, not building a product</span></div>
+        </div>
+      </div>
+      <div class="md-right">
+        <div class="r-label">Core Concepts</div>
+        <div class="concepts">
+          <div class="concept">
+            <div class="c-name">Personas</div>
+            <div class="c-desc">The real people the work is for — with goals, context, and environment</div>
+          </div>
+          <div class="concept">
+            <div class="c-name">Outcomes</div>
+            <div class="c-desc">What each persona can do when the work succeeds — not features, abilities</div>
+          </div>
+          <div class="concept">
+            <div class="c-name">Contracts</div>
+            <div class="c-desc">Interfaces between outcomes so they can be built independently and in parallel</div>
+          </div>
+          <div class="concept">
+            <div class="c-name">Verification</div>
+            <div class="c-desc">Walk through the outcome in a browser before it's marked done. Domain language only</div>
+          </div>
+        </div>
+        <div class="odd-chain">Personas → Outcomes → Build → Verify in browser → Commit → Next outcome</div>
+      </div>
+    </div>
+    <div class="sc-mark">SafetyCulture</div>
+    <div class="counter">8 / 10</div>
+    <div class="progress" style="width:80%"></div>
+  </div>
+
+  <!-- 09 WHEN TO USE -->
+  <div class="slide" id="s9">
+    <div class="label">Decision Guide</div>
+    <div class="headline">When to use what</div>
+    <div class="grid">
+      <div class="wc">
+        <div class="wc-name">OpenSpec <span style="font-size:14px;color:var(--w38);font-weight:500">★ default</span></div>
+        <div class="wc-items">
+          <div class="wi y"><div class="wi-dot y">✓</div><span>Any UI change where accurate, on-target output matters</span></div>
+          <div class="wi y"><div class="wi-dot y">✓</div><span>Exploring ideas without committing to code</span></div>
+          <div class="wi y"><div class="wi-dot y">✓</div><span>Prototype work where design intent must be captured</span></div>
+          <div class="wi n"><div class="wi-dot n">✕</div><span>Pure throwaway experiments — just vibe it</span></div>
+        </div>
+      </div>
+      <div class="wc">
+        <div class="wc-name">BMAD</div>
+        <div class="wc-items">
+          <div class="wi y"><div class="wi-dot y">✓</div><span>Starting a new project from zero — no docs yet</span></div>
+          <div class="wi y"><div class="wi-dot y">✓</div><span>Need a full PRD + architecture + story backlog</span></div>
+          <div class="wi n"><div class="wi-dot n">✕</div><span>You already have requirements — skip to GSD</span></div>
+          <div class="wi n"><div class="wi-dot n">✕</div><span>Need to ship something today</span></div>
+        </div>
+      </div>
+      <div class="wc">
+        <div class="wc-name">GSD</div>
+        <div class="wc-items">
+          <div class="wi y"><div class="wi-dot y">✓</div><span>Builds that span multiple sessions</span></div>
+          <div class="wi y"><div class="wi-dot y">✓</div><span>You have requirements and just need to execute</span></div>
+          <div class="wi n"><div class="wi-dot n">✕</div><span>Quick one-session prototype — use OpenSpec</span></div>
+          <div class="wi n"><div class="wi-dot n">✕</div><span>No requirements yet — do BMAD first</span></div>
+        </div>
+      </div>
+      <div class="wc">
+        <div class="wc-name">ODD</div>
+        <div class="wc-items">
+          <div class="wi y"><div class="wi-dot y">✓</div><span>Design-led projects where you're designer and builder</span></div>
+          <div class="wi y"><div class="wi-dot y">✓</div><span>Verified delivery matters more than speed</span></div>
+          <div class="wi n"><div class="wi-dot n">✕</div><span>Speed is the constraint — use OpenSpec instead</span></div>
+          <div class="wi n"><div class="wi-dot n">✕</div><span>Just shipping a single change, not building a product</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="rule-footer">Use the lightest method that solves the problem.</div>
+    <div class="sc-mark">SafetyCulture</div>
+    <div class="counter">9 / 10</div>
+    <div class="progress" style="width:90%"></div>
+  </div>
+
+  <!-- 10 TAKEAWAY -->
+  <div class="slide" id="s10">
+    <div class="glow"></div>
+    <div class="hl">
+      The AI's output quality is determined<br>
+      by the quality of <span class="accent">context you engineer</span><br>
+      before you start.
+    </div>
+    <div class="sc-mark">SafetyCulture</div>
+    <div class="counter">10 / 10</div>
+    <div class="progress" style="width:100%"></div>
+  </div>
+
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+let current = 0;
+
+function go(n) {
+  slides[current].classList.remove('active');
+  current = Math.max(0, Math.min(slides.length - 1, n));
+  slides[current].classList.add('active');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); go(current + 1); }
+  if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(current - 1); }
+  if (e.key === 'Home') go(0);
+  if (e.key === 'End') go(slides.length - 1);
+});
+
+// Touch swipe
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; });
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (dx < -40) go(current + 1);
+  if (dx > 40) go(current - 1);
+});
+</script>
+</body>
+</html>

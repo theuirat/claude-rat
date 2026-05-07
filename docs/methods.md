@@ -9,6 +9,8 @@ The distinction matters:
 - **Vibe coding** — telling AI what to do and going with the vibe. Fast, but you're not really in control.
 - **Spec-Driven Design** — AI is a coding assistant, but *you* own the end-to-end. Lots of planning, disciplined execution, and rules for both AI and yourself. You're the project manager orchestrating the process.
 
+**Presentation:** [Spec-Driven Design — 10-slide conference deck](spec-driven-design.html) — covers the problem, the concept, and when to reach for each method. Open in a browser, press arrow keys to navigate.
+
 ---
 
 ## At a glance
@@ -384,3 +386,4 @@ Use these at the persona stage to validate you're solving the right problem for 
 | BMAD | [github.com/bmadcode/BMAD-METHOD](https://github.com/bmadcode/BMAD-METHOD) · [github.com/DarrenJCoxon/aad-introduction](https://github.com/DarrenJCoxon/aad-introduction) |
 | ODD | [github.com/odd-studio/odd](https://github.com/odd-studio/odd) |
 | Context7 MCP | [context7.com](https://context7.com) — keeps Claude's library knowledge current |
+| Spec-Driven Design deck | [spec-driven-design.html](spec-driven-design.html) — 10-slide conference presentation, open in browser |
