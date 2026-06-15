@@ -52,6 +52,12 @@ Personal Claude Code setup — skills (invokable with `/skill-name`) and agents 
 | `buck-animator` | `/buck-animator <character and states>` | Animation decision sheet for Soul-style characters |
 | `creative-director-review` | `/creative-director-review <SVG/component + brief>` | CD-level review of character implementation — APPROVED or REVISION NEEDED |
 
+**Kitchen**
+
+| Skill | Invoke | One-liner |
+|---|---|---|
+| `lucia-chef` | `/lucia-chef <craving, ingredient, or cuisine>` | Ask Lucia what to cook — 2–3 options from her SC kitchen archive with ingredients, method, vegan swap & tips |
+
 **ODD — Outcome-Driven Development**
 
 | Skill | Invoke | One-liner |
@@ -67,6 +73,7 @@ Personal Claude Code setup — skills (invokable with `/skill-name`) and agents 
 
 | Agent | Trigger | One-liner |
 |---|---|---|
+| `lucia-chef` | "What should I cook tonight? I'm craving…" | Suggests 2–3 dishes from Lucia Di Luca's SC kitchen archive — with story, ingredients, method & tips |
 | `story-template-writer` | "Create a story for…" | Writes a structured story doc from a feature description |
 | `scrum-master` | "Turn this PRD/spec into stories" | Converts requirements docs into implementation-ready story files |
 | `story-implementer` | "Implement the [story].md story" | Reads an Approved story and executes it end-to-end |
