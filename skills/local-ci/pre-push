@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+# Actions-aware pre-push — run the local CI gate ONLY when GitHub Actions can't.
+#
+# Policy (per founder decision): this behaves like GitHub CI, but only ENGAGES
+# when we've maxed out the GitHub Actions runner-minute pool. On a normal day
+# GitHub runs CI on the PR, so this hook stays out of the way and pushes are
+# fast. When the minute pool is exhausted (jobs would fail in ~2s with
+# runner_id:0 and no logs), this runs the same gates locally so a push is never
+# unverified.
+#
+# Decision:
+#   Actions healthy  → skip (GitHub will run CI). Fast push.
+#   Actions maxed    → run the full local gate; block the push on failure.
+#   Actions unknown  → skip with a note (honors "only when maxed"); override
+#                      with LOCAL_CI_FORCE=1.
+#
+# Escape hatches:
+#   LOCAL_CI_SKIP=1     git push   # never run the local gate this push
+#   LOCAL_CI_FORCE=1    git push   # run the local gate regardless of Actions
+#   LOCAL_CI_ACTIONS=maxed|healthy git push   # override the auto-detect
+#
+# Status detection uses `gh` (GitHub CLI). Free-plan accounts with a $0 Actions
+# budget: maxed == minutes-used ≥ minutes-included. If you carry a PAID Actions
+# budget (overage allowed), Actions still runs past the included pool — set
+# LOCAL_CI_ACTIONS=healthy (or don't install this hook) so it doesn't run
+# locally when it doesn't need to.
+
+set -uo pipefail
+
+[ "${LOCAL_CI_SKIP:-0}" = "1" ] && exit 0
+
+# Locate the runner: co-located with this hook, else the ~/.claude install.
+HERE="$(cd "$(dirname "$0")" && pwd)"
+RUNNER=""
+for cand in \
+  "$HERE/local-ci.sh" \
+  "$HOME/.claude/skills/local-ci/local-ci.sh" \
+  "$HOME/.claude/bin/local-ci.sh"; do
+  [ -x "$cand" ] && { RUNNER="$cand"; break; }
+done
+if [ -z "$RUNNER" ]; then
+  echo "[local-ci] runner not found (looked next to the hook and in ~/.claude); skipping." >&2
+  exit 0
+fi
+
+owner_of() {
+  local url
+  url="$(git config --get remote.origin.url 2>/dev/null)"
+  # git@github.com:owner/repo.git  OR  https://…/owner/repo(.git)
+  printf '%s' "$url" | sed -E 's#.*[/:]([^/]+)/[^/]+(\.git)?/?$#\1#'
+}
+
+actions_state() {   # -> maxed | healthy | unknown  (cached 10 min per owner)
+  if [ -n "${LOCAL_CI_ACTIONS:-}" ]; then printf '%s' "$LOCAL_CI_ACTIONS"; return; fi
+  command -v gh >/dev/null 2>&1 || { printf 'unknown'; return; }
+  local owner cache now line age pair used inc
+  owner="$(owner_of)"; [ -n "$owner" ] || { printf 'unknown'; return; }
+  cache="${TMPDIR:-/tmp}/local-ci-actions-$owner"
+  now="$(date +%s 2>/dev/null || echo 0)"
+  if [ -f "$cache" ] && [ "$now" -gt 0 ]; then
+    line="$(head -1 "$cache" 2>/dev/null)"
+    age=$(( now - ${line%% *} ))
+    [ "$age" -ge 0 ] && [ "$age" -lt 600 ] && { printf '%s' "${line#* }"; return; }
+  fi
+  # One call; extract "used<TAB>included".
+  pair="$(gh api "/users/$owner/settings/billing/actions" \
+          --jq '[.total_minutes_used, .included_minutes] | @tsv' 2>/dev/null)" \
+        || { printf 'unknown'; return; }
+  used="$(printf '%s' "$pair" | cut -f1)"
+  inc="$(printf '%s' "$pair" | cut -f2)"
+  case "$used$inc" in *[!0-9]*|"") printf 'unknown'; return ;; esac
+  local state
+  if [ "$used" -ge "$inc" ]; then state="maxed"; else state="healthy"; fi
+  [ "$now" -gt 0 ] && printf '%s %s\n' "$now" "$state" > "$cache" 2>/dev/null
+  printf '%s' "$state"
+}
+
+if [ "${LOCAL_CI_FORCE:-0}" = "1" ]; then
+  echo "[local-ci] LOCAL_CI_FORCE=1 — running local gate regardless of Actions status."
+  exec "$RUNNER"
+fi
+
+state="$(actions_state)"
+case "$state" in
+  maxed)
+    echo "[local-ci] GitHub Actions minutes are exhausted — running CI locally in its place."
+    exec "$RUNNER"
+    ;;
+  healthy)
+    echo "[local-ci] GitHub Actions is healthy — CI will run on GitHub; skipping local gate."
+    exit 0
+    ;;
+  *)
+    echo "[local-ci] Couldn't determine GitHub Actions status (need the gh CLI + a token, or set LOCAL_CI_ACTIONS)."
+    echo "[local-ci] Policy: the local gate runs only when Actions is maxed, so this push proceeds."
+    echo "[local-ci] Run it anyway with:  LOCAL_CI_FORCE=1 git push"
+    exit 0
+    ;;
+esac
