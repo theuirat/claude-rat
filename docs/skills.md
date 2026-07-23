@@ -164,3 +164,16 @@ Senior Creative Director at Buck. Reviews SVG/React character implementation aga
 **Use when:** After implementing a character component. Drives the iteration loop until the work is production-ready.
 
 **Pipeline:** `buck-illustrator` → `buck-animator` → `creative-director-review`
+
+---
+
+### `local-ci`
+**Invoke:** `/local-ci [--quick | --with-lighthouse | --clean | --bail]`
+
+Runs a repo's GitHub Actions CI gates on your machine — typecheck, lint, test, build, secret scan, and (if configured) lighthouse — so a push is verifiable without spending Actions minutes, or when the minute pool is maxed out and GitHub can't start a runner (jobs fail in ~2s with `runner_id:0` and no logs). Project-adaptive: detects the package manager from the lockfile and runs the project's own gate scripts, so it works in any repo. Ships an **Actions-aware pre-push hook** that engages the local gate ONLY when GitHub Actions is exhausted (healthy → skip, maxed → run, unknown → skip with a `LOCAL_CI_FORCE=1` override).
+
+**Use when:** GitHub's checks are red with no logs, before opening a PR without Actions budget, or any "run CI locally" / "check before I push".
+
+**Install the hook:** `~/.claude/skills/local-ci/install.sh --global` (or `--repo` inside a husky/lefthook project).
+
+**Pairs with:** `ci-local-runner` agent (runs it, reports plain-English), `pr-monitor` (watches the real GitHub CI once minutes return).

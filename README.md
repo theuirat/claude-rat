@@ -41,6 +41,7 @@ Personal Claude Code setup — skills (invokable with `/skill-name`) and agents 
 | `material-3` | `/material-3 [component\|theme\|scaffold\|audit] <description>` | Google Material Design 3 — tokens, 30+ components, theming (Compose/Flutter/Web) |
 | `motion-spec` | `/motion-spec <UI element and states>` | Precise animation spec (Framer Motion/GSAP) before writing code |
 | `pr-monitor` | `/pr-monitor <PR number(s)>` | Check CI, fix failures, push until a PR is green |
+| `local-ci` | `/local-ci [--quick\|--with-lighthouse]` | Runs a repo's CI gates locally (auto-detects package manager); ships an Actions-aware pre-push hook that engages only when GitHub Actions minutes are maxed out |
 
 **Creative — Buck/Orb**
 
@@ -83,6 +84,7 @@ Personal Claude Code setup — skills (invokable with `/skill-name`) and agents 
 | `animation-implementer` | "Implement the motion spec" | Builds animated components from a motion spec |
 | `design-to-pr` | "Implement [Jira ticket] and raise a PR" | Full designer shipping workflow: ticket → code → screenshots → PR |
 | `pr-monitor` | "Check CI on PR #…" | Monitors a PR end-to-end — CI, reviewer comments, pushes until green |
+| `ci-local-runner` | "run CI locally" / "checks are red with no logs" | Runs the repo's gates locally (typecheck/lint/test/build/secret-scan) and reports safe-to-push in plain English; verifies only, never pushes |
 
 ---
 

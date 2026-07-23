@@ -134,3 +134,18 @@ Implements motion design in React using Framer Motion, GSAP, and Three.js/WebGL.
 **Pairs with:** `motion-spec` skill (run first), `buck-illustrator` + `buck-animator` skills (for character work).
 
 [→ Agent definition](../agents/animation-implementer.md)
+
+---
+
+### `ci-local-runner`
+**Trigger:** "run CI locally" / "checks are red but there are no logs" / "check this before I push, GitHub's out of minutes"
+
+Runs a repo's CI gates on the local machine — auto-detects the package manager and runs the project's own typecheck/lint/test/build/secret-scan — and reports the green/red verdict in plain English. Exists for when GitHub Actions is maxed out (checks fail in ~2s with `runner_id:0` and no logs). Verifies only; never pushes or merges.
+
+**Model:** Sonnet
+
+**Use when:** Actions minutes are exhausted, or you want real evidence a change is green before pushing / opening a PR.
+
+**Difference from the `local-ci` skill:** the skill is the runner + doctrine you invoke directly; this agent wraps it, reads the summary, and translates the result into a plain-English safe-to-push / here's-the-one-broken-thing report.
+
+[→ Agent definition](../agents/ci-local-runner.md)
